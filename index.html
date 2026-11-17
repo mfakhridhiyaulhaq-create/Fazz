@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DompetKu - Kelola Gaji & Pengeluaran</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+    <div class="wallet-card">
+        <div class="wallet-header">
+            <span>Total Pemasukan Terkumpul</span>
+            <button class="btn-reset-icon" onclick="resetSemuaData()" title="Reset Awal Bulan">🔄</button>
+        </div>
+        <h1 id="displayTotalGaji">Rp 0</h1>
+        <div class="wallet-sub">
+            <span>Terpakai: <strong id="displayTotalKeluar">Rp 0</strong></span>
+            <span>Sisa Total: <strong id="displaySisaTotal">Rp 0</strong></span>
+        </div>
+    </div>
+
+    <div id="tab-budget" class="tab-content active">
+        <div class="budget-summary-card" id="summaryCard">
+            <div class="summary-top">
+                <span class="summary-title">Status Keuangan Bulan Ini</span>
+                <span class="status-badge" id="statusKeuangan">Belum Ada Data</span>
+            </div>
+            <div class="summary-stats">
+                <div class="stat-box">
+                    <small>Dana Terpakai</small>
+                    <strong id="persenTerpakai">0%</strong>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-box">
+                    <small>Jatah Harian (<span id="sisaHariBulan">0</span> hari lagi)</small>
+                    <strong id="estimasiHarian">Rp 0/hari</strong>
+                </div>
+            </div>
+        </div>
+
+        <div class="result-section">
+            <div class="result-item kebutuhan" id="cardKebutuhan">
+                <div class="item-top">
+                    <span class="result-title">🏠 Kebutuhan Pokok (50%)</span>
+                    <span class="result-value" id="resKebutuhan">Rp 0</span>
+                </div>
+                <div class="progress-bar"><div class="progress-fill" id="barKebutuhan"></div></div>
+                <div class="item-bottom">
+                    <small class="deskripsi">Sisa dana: <strong id="sisaKebutuhan">Rp 0</strong></small>
+                    <span class="over-alert" id="alertKebutuhan">⚠️ Over Budget!</span>
+                </div>
+            </div>
+            
+            <div class="result-item keinginan" id="cardKeinginan">
+                <div class="item-top">
+                    <span class="result-title">🎮 Keinginan (30%)</span>
+                    <span class="result-value" id="resKeinginan">Rp 0</span>
+                </div>
+                <div class="progress-bar"><div class="progress-fill" id="barKeinginan"></div></div>
+                <div class="item-bottom">
+                    <small class="deskripsi">Sisa dana: <strong id="sisaKeinginan">Rp 0</strong></small>
+                    <span class="over-alert" id="alertKeinginan">⚠️ Over Budget!</span>
+                </div>
+            </div>
+            
+            <div class="result-item tabungan" id="cardTabungan">
+                <div class="item-top">
+                    <span class="result-title">🏦 Tabungan (20%)</span>
+                    <span class="result-value" id="resTabungan">Rp 0</span>
+                </div>
+                <div class="progress-bar"><div class="progress-fill" id="barTabungan"></div></div>
+                <div class="item-bottom">
+                    <small class="deskripsi">Sisa dana: <strong id="sisaTabungan">Rp 0</strong></small>
+                    <span class="over-alert" id="alertTabungan">⚠️ Terpakai Melebihi Batas!</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="tab-transaksi" class="tab-content">
+        <div class="card-box">
+            <h3>💰 Tambah Pemasukan / Gaji</h3>
+            <p class="hint">Nominal baru akan otomatis ditambahkan ke saldo yang ada.</p>
+            <div class="form-group input-rp-wrapper">
+                <span class="prefix-rp">Rp</span>
+                <input type="text" id="gaji" class="input-rupiah" inputmode="numeric" placeholder="0">
+            </div>
+            <div class="quick-chips">
+                <button type="button" onclick="tambahCepat('gaji', 500000)">+500rb</button>
+                <button type="button" onclick="tambahCepat('gaji', 1000000)">+1 Jt</button>
+                <button type="button" onclick="tambahCepat('gaji', 5000000)">+5 Jt</button>
+            </div>
+            <button onclick="tambahPemasukan()" class="btn-primary">➕ Tambahkan ke Saldo</button>
+        </div>
+
+        <div class="card-box">
+            <h3>💸 Catat Pengeluaran</h3>
+            
+            <div class="form-group">
+                <label for="pilihanPengeluaran">Pilih Pengeluaran:</label>
+                <select id="pilihanPengeluaran" onchange="cekPilihanPengeluaran()">
+                    <option value="Jajan">🍟 Jajan</option>
+                    <option value="Makan">🍱 Makan</option>
+                    <option value="Top Up Game">🎮 Top Up Game</option>
+                    <option value="lainnya">✏️ Lainnya (Ketik sendiri)</option>
+                </select>
+            </div>
+
+            <div class="form-group" id="groupInputLainnya" style="display: none;">
+                <input type="text" id="namaPengeluaran" placeholder="Ketik nama pengeluaran...">
+            </div>
+
+            <div class="form-group input-rp-wrapper">
+                <span class="prefix-rp">Rp</span>
+                <input type="text" id="jumlahPengeluaran" class="input-rupiah" inputmode="numeric" placeholder="0">
+            </div>
+            <div class="quick-chips">
+                <button type="button" onclick="tambahCepat('jumlahPengeluaran', 10000)">+10rb</button>
+                <button type="button" onclick="tambahCepat('jumlahPengeluaran', 25000)">+25rb</button>
+                <button type="button" onclick="tambahCepat('jumlahPengeluaran', 50000)">+50rb</button>
+                <button type="button" onclick="tambahCepat('jumlahPengeluaran', 100000)">+100rb</button>
+            </div>
+            <div class="form-group">
+                <select id="kategoriPengeluaran">
+                    <option value="kebutuhan">🏠 Kebutuhan Pokok (50%)</option>
+                    <option value="keinginan">🎮 Keinginan (30%)</option>
+                    <option value="tabungan">🏦 Tabungan (20%)</option>
+                </select>
+            </div>
+            <button onclick="tambahPengeluaran()" class="btn-catat">Simpan Pengeluaran</button>
+        </div>
+    </div>
+  
+    <div id="tab-riwayat" class="tab-content">
+        <div class="riwayat-header">
+            <h3>Riwayat Pemasukan</h3>
+        </div>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Sumber</th>
+                        <th>Nominal</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="listPemasukan"></tbody>
+            </table>
+        </div>
+
+        <div class="riwayat-header" style="margin-top: 20px;">
+            <h3>Riwayat Pengeluaran</h3>
+        </div>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nama</th>
+                        <th>Kategori</th>
+                        <th>Jumlah</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="listPengeluaran"></tbody>
+            </table>
+        </div>
+
+        <button onclick="eksporKeExcel()" class="btn-excel">📥 Ekspor Laporan ke Excel</button>
+    </div>
+
+    <nav class="bottom-nav">
+        <button class="nav-item active" onclick="bukaTab('tab-budget', this)">
+            <span class="nav-icon">📊</span>
+            <span class="nav-label">Budget</span>
+        </button>
+        <button class="nav-item" onclick="bukaTab('tab-transaksi', this)">
+            <span class="nav-icon">➕</span>
+            <span class="nav-label">Catat</span>
+        </button>
+        <button class="nav-item" onclick="bukaTab('tab-riwayat', this)">
+            <span class="nav-icon">📜</span>
+            <span class="nav-label">Riwayat</span>
+        </button>
+    </nav>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
